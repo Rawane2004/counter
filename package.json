@@ -1,0 +1,23 @@
+{
+  "name": "counter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "compress-buffer": "^1.2.0",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "hiredis": "^0.1.17",
+    "iconv": "^2.0.6",
+    "multer": "^2.0.2",
+    "pg": "^1.1.0",
+    "tesseract.js": "^7.0.0",
+    "uriparser": "^2.4.0"
+  }
+}

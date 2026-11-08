@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#3aa76d" />
+  <title>ماسح المنتجات</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="styel.css" />
+  <style>
+    body{font-family:Tahoma,Arial,sans-serif;color:#18221d}
+    .page{max-width:760px;margin:0 auto}
+    .camera-wrapper{min-height:360px;height:58vh;background:#111;position:relative;overflow:hidden}
+    .scan-frame{position:relative;z-index:2;width:min(82%,520px);height:38%;min-height:115px;border:2px solid #65d995;background:#ffffff08;box-shadow:0 0 0 999px #0005}
+    .scan-frame p{padding:10px;text-align:center;line-height:1.8}
+    #camera{object-fit:cover}
+    .scan-icon{color:#fff;font-size:25px}
+    .scan-btn,.primary-btn{cursor:pointer}
+    .scan-result{background:#fff;border-radius:20px;padding:18px;margin-top:18px;box-shadow:0 8px 28px #10251a12}
+    .hidden{display:none!important}
+    .result-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+    .result-heading h3{margin:0}
+    .status-message{font-size:13px;color:#68756d;line-height:1.8;margin:8px 0 14px}
+    .field{display:flex;flex-direction:column;gap:7px;margin:12px 0}
+    .field label{font-size:13px;font-weight:bold;color:#56645b}
+    .field input,.field select{width:100%;padding:13px;border:1px solid #dce5de;border-radius:12px;font-size:16px;background:#fbfdfb;box-sizing:border-box}
+    .result-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+    .result-actions button{margin:0;padding:14px;font-size:15px}
+    .secondary{background:#e8eee9!important;color:#26382c!important}
+    .scan-options{display:flex;justify-content:center;margin-top:12px}
+    .upload-label{cursor:pointer;color:#347c50;font-weight:bold;padding:10px}
+    .upload-label input{display:none}
+    .hint{font-size:12px;color:#758078;text-align:center;line-height:1.8;margin:12px 4px}
+    .product-card{align-items:center;gap:12px}
+    .product-info{min-width:0;overflow-wrap:anywhere}
+    .product-info h3{font-size:15px;margin:0 0 6px}
+    .product-actions{display:flex;align-items:center;gap:10px;white-space:nowrap}
+    .delete-btn{border:0;background:#fff0f0;color:#c44;padding:8px 11px;border-radius:10px;cursor:pointer}
+    .bottom-nav{z-index:5}
+    .stat-card p{overflow-wrap:anywhere}
+    .empty-state{text-align:center;color:#7b877f;padding:25px 10px}
+    .running-total strong,.price,#running-total,#total-cost{direction:ltr;unicode-bidi:embed}
+    @media(max-width:480px){.page{padding:14px;padding-bottom:100px}.camera-wrapper{min-height:330px;height:52vh}.result-actions{grid-template-columns:1fr}.stats{flex-direction:column}}
+  </style>
+</head>
+<body>
+<section class="page active" id="scan-page">
+  <h2 style="margin:4px 0 14px">مسح المنتجات</h2>
+  <div class="camera-wrapper idle" id="camera-wrapper">
+    <video id="camera" autoplay playsinline muted></video>
+    <div class="scan-frame">
+      <div style="text-align:center">
+        <div class="scan-icon"><i class="fa-solid fa-camera"></i></div>
+        <p id="camera-text">وجّه الكاميرا نحو بطاقة السعر أو ملصق المنتج</p>
+      </div>
+    </div>
+  </div>
+  <button class="primary-btn scan-btn" id="scan-btn"><i class="fa-solid fa-camera"></i> تصوير ومسح المنتج</button>
+  <div class="scan-options">
+    <label class="upload-label"><i class="fa-regular fa-image"></i> أو اختر صورة من الجهاز
+      <input id="image-upload" type="file" accept="image/*" />
+    </label>
+  </div>
+  <p class="hint">صوّر بطاقة الرف أو ملصق العبوة بوضوح. إذا لم يكن السعر مطبوعاً على المنتج، امسح بطاقة الرف أو أدخل السعر يدوياً.</p>
+
+  <div class="scan-result hidden" id="scan-result">
+    <div class="result-heading">
+      <h3>مراجعة بيانات المنتج</h3>
+      <span class="badge drinks">نتيجة المسح</span>
+    </div>
+    <p class="status-message" id="status-message">راجع البيانات قبل الإضافة.</p>
+    <div class="field"><label for="product-name">اسم المنتج</label><input id="product-name" type="text" placeholder="اكتب اسم المنتج" /></div>
+    <div class="field"><label for="product-price">السعر (ريال سعودي)</label><input id="product-price" type="number" min="0" step="0.01" inputmode="decimal" placeholder="مثال: 12.95" /></div>
+    <div class="field"><label for="product-category">التصنيف</label>
+      <select id="product-category">
+        <option>أخرى</option><option>المشروبات</option><option>الألبان</option><option>اللحوم</option><option>الفواكه والخضار</option><option>الحلويات</option><option>المخبوزات</option><option>الوجبات الخفيفة</option><option>المنظفات</option>
+      </select>
+    </div>
+    <div class="result-actions">
+      <button class="primary-btn add-btn" id="add-btn"><i class="fa-solid fa-check"></i> تأكيد وإضافة</button>
+      <button class="primary-btn secondary rescan-btn" id="rescan-btn"><i class="fa-solid fa-rotate"></i> إعادة المسح</button>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="products-page">
+  <header class="page-header"><div><h2>قائمة المنتجات</h2><span class="muted" id="items-count">0 منتج</span></div><button class="clear-btn" id="clear-btn"><i class="fa-regular fa-trash-can"></i> حذف الكل</button></header>
+  <div class="running-total"><span>الإجمالي الحالي</span><strong id="running-total">0.00 ر.س</strong></div>
+  <div id="products-list"><div class="empty-state">لم تتم إضافة منتجات بعد.</div></div>
+</section>
+
+<section class="page" id="summary-page">
+  <div class="total-card"><span>إجمالي المشتريات</span><h1 id="total-cost">0.00 ر.س</h1><small id="total-items">0 منتج</small></div>
+  <div class="stats">
+    <div class="stat-card expensive"><strong><i class="fa-solid fa-arrow-trend-up"></i> الأغلى</strong><p id="most-expensive-name">-</p><strong id="most-expensive-price">0.00 ر.س</strong></div>
+    <div class="stat-card cheap"><strong><i class="fa-solid fa-arrow-trend-down"></i> الأرخص</strong><p id="cheapest-name">-</p><strong id="cheapest-price">0.00 ر.س</strong></div>
+  </div>
+  <h4 class="section-title"><i class="fa-solid fa-tags"></i> الإجمالي حسب التصنيف</h4>
+  <div id="categories-summary"></div>
+</section>
+
+<nav class="bottom-nav">
+  <button class="nav-btn active" data-page="scan-page"><i class="fa-solid fa-camera"></i><span>المسح</span></button>
+  <button class="nav-btn" data-page="products-page"><i class="fa-solid fa-list"></i><span>المنتجات</span></button>
+  <button class="nav-btn" data-page="summary-page"><i class="fa-solid fa-chart-column"></i><span>الملخص</span></button>
+</nav>
+
+<script>
+// غيّر العنوان إذا شغّلت FastAPI على جهاز أو خادم مختلف.
+const API_URL = "http://127.0.0.1:8000/scan";
+const video = document.getElementById("camera");
+const cameraWrapper = document.getElementById("camera-wrapper");
+const cameraText = document.getElementById("camera-text");
+const scanBtn = document.getElementById("scan-btn");
+const uploadInput = document.getElementById("image-upload");
+const resultBox = document.getElementById("scan-result");
+const nameInput = document.getElementById("product-name");
+const priceInput = document.getElementById("product-price");
+const categoryInput = document.getElementById("product-category");
+const statusMessage = document.getElementById("status-message");
+const addBtn = document.getElementById("add-btn");
+const rescanBtn = document.getElementById("rescan-btn");
+let cameraStream = null;
+let products = [];
+let currentResult = null;
+
+const money = value => `${Number(value || 0).toFixed(2)} ر.س`;
+
+async function startCamera(){
+  if(cameraStream) return;
+  if(!navigator.mediaDevices?.getUserMedia) throw new Error("الكاميرا تحتاج فتح الموقع عبر localhost أو HTTPS.");
+  cameraStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}},audio:false});
+  video.srcObject = cameraStream;
+  await video.play();
+}
+function stopCamera(){
+  if(cameraStream){cameraStream.getTracks().forEach(track=>track.stop());cameraStream=null;}
+  video.srcObject=null;
+}
+function captureImage(){
+  if(!video.videoWidth) throw new Error("الكاميرا لم تصبح جاهزة بعد. حاول مرة أخرى.");
+  const canvas=document.createElement("canvas");
+  canvas.width=video.videoWidth; canvas.height=video.videoHeight;
+  canvas.getContext("2d").drawImage(video,0,0,canvas.width,canvas.height);
+  return new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(new Error("تعذر التقاط الصورة.")),"image/jpeg",0.92));
+}
+
+async function scanBlob(blob){
+  scanBtn.disabled=true;
+  scanBtn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> جارٍ تحليل الصورة...';
+  resultBox.classList.add("hidden");
+  try{
+    const formData=new FormData();
+    formData.append("image",blob,"product.jpg");
+    const response=await fetch(API_URL,{method:"POST",body:formData});
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok) throw new Error(data.detail || "تعذر تحليل الصورة. تأكد من تشغيل خادم Python.");
+    if(!data.success) throw new Error(data.message || "لم نتمكن من قراءة الصورة.");
+    currentResult=data;
+    nameInput.value=data.name || "";
+    priceInput.value=data.price ?? "";
+    categoryInput.value=data.category || "أخرى";
+    statusMessage.textContent=data.message || "راجع الاسم والسعر قبل الإضافة.";
+    if(data.price===null) statusMessage.textContent += " لم نخمّن السعر حتى لا نضيف قيمة خاطئة.";
+    resultBox.classList.remove("hidden");
+    resultBox.scrollIntoView({behavior:"smooth",block:"nearest"});
+  }catch(error){
+    alert(error.message);
+  }finally{
+    scanBtn.disabled=false;
+    scanBtn.innerHTML='<i class="fa-solid fa-camera"></i> تصوير ومسح المنتج';
+  }
+}
+
+scanBtn.addEventListener("click",async()=>{
+  try{
+    await startCamera();
+    cameraText.textContent="ثبّت الصورة داخل الإطار...";
+    await new Promise(resolve=>setTimeout(resolve,900));
+    const blob=await captureImage();
+    stopCamera();
+    cameraText.textContent="وجّه الكاميرا نحو بطاقة السعر أو ملصق المنتج";
+    await scanBlob(blob);
+  }catch(error){alert(error.message);stopCamera();}
+});
+rescanBtn.addEventListener("click",()=>{resultBox.classList.add("hidden");nameInput.value="";priceInput.value="";});
+uploadInput.addEventListener("change",async event=>{
+  const file=event.target.files?.[0];
+  if(file) await scanBlob(file);
+  uploadInput.value="";
+});
+
+addBtn.addEventListener("click",()=>{
+  const name=nameInput.value.trim();
+  const price=Number(priceInput.value);
+  if(!name){alert("اكتب اسم المنتج أولاً.");nameInput.focus();return;}
+  if(priceInput.value.trim()==="" || !Number.isFinite(price) || price<0){alert("أدخل سعراً صحيحاً.");priceInput.focus();return;}
+  products.push({name,price,category:categoryInput.value});
+  updateUI();
+  resultBox.classList.add("hidden");
+  nameInput.value="";priceInput.value="";
+  alert("تمت إضافة المنتج إلى القائمة.");
+});
+
+function updateUI(){
+  const list=document.getElementById("products-list");
+  list.innerHTML="";
+  if(!products.length){list.innerHTML='<div class="empty-state">لم تتم إضافة منتجات بعد.</div>';}
+  products.forEach((product,index)=>{
+    const card=document.createElement("div");card.className="product-card";
+    const info=document.createElement("div");info.className="product-info";
+    const title=document.createElement("h3");title.textContent=product.name;
+    const badge=document.createElement("span");badge.className="badge drinks";badge.textContent=product.category;
+    info.append(title,badge);
+    const actions=document.createElement("div");actions.className="product-actions";
+    const price=document.createElement("strong");price.className="price";price.textContent=money(product.price);
+    const remove=document.createElement("button");remove.className="delete-btn";remove.type="button";remove.dataset.index=index;remove.setAttribute("aria-label","حذف المنتج");remove.innerHTML='<i class="fa-solid fa-xmark"></i>';
+    actions.append(price,remove);card.append(info,actions);list.append(card);
+  });
+  const total=products.reduce((sum,p)=>sum+p.price,0);
+  document.getElementById("items-count").textContent=`${products.length} منتج`;
+  document.getElementById("running-total").textContent=money(total);
+  document.getElementById("total-cost").textContent=money(total);
+  document.getElementById("total-items").textContent=`${products.length} منتج تمت قراءته`;
+  if(products.length){
+    const max=products.reduce((a,b)=>a.price>=b.price?a:b);
+    const min=products.reduce((a,b)=>a.price<=b.price?a:b);
+    document.getElementById("most-expensive-name").textContent=max.name;
+    document.getElementById("most-expensive-price").textContent=money(max.price);
+    document.getElementById("cheapest-name").textContent=min.name;
+    document.getElementById("cheapest-price").textContent=money(min.price);
+  }else{
+    document.getElementById("most-expensive-name").textContent="-";
+    document.getElementById("most-expensive-price").textContent=money(0);
+    document.getElementById("cheapest-name").textContent="-";
+    document.getElementById("cheapest-price").textContent=money(0);
+  }
+  const totals={};
+  products.forEach(p=>totals[p.category]=(totals[p.category]||0)+p.price);
+  const summary=document.getElementById("categories-summary");summary.innerHTML="";
+  Object.entries(totals).forEach(([category,value])=>{
+    const row=document.createElement("div");row.className="category-row";
+    const label=document.createElement("span");label.textContent=category;
+    const amount=document.createElement("strong");amount.textContent=money(value);
+    row.append(label,amount);summary.append(row);
+  });
+}
+
+document.getElementById("products-list").addEventListener("click",event=>{
+  const button=event.target.closest(".delete-btn");
+  if(!button)return;
+  products.splice(Number(button.dataset.index),1);updateUI();
+});
+document.getElementById("clear-btn").addEventListener("click",()=>{
+  if(products.length && confirm("هل تريد حذف جميع المنتجات؟")){products=[];updateUI();}
+});
+
+document.querySelectorAll(".nav-btn").forEach(button=>button.addEventListener("click",()=>{
+  document.querySelectorAll(".page").forEach(page=>page.classList.toggle("active",page.id===button.dataset.page));
+  document.querySelectorAll(".nav-btn").forEach(nav=>nav.classList.toggle("active",nav===button));
+  stopCamera();
+}));
+window.addEventListener("beforeunload",stopCamera);
+</script>
+</body>
+</html>

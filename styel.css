@@ -1,0 +1,474 @@
+:root {
+  --bg-main: #f7f8f4;
+  --dark: #0f1216;
+  --green: #3aa76d;
+  --green-soft: #e7f4ec;
+  --text-muted: #8a8f98;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-main);
+}
+
+/* ===== Pages ===== */
+.page {
+  display: none;
+  padding: 20px;
+  padding-bottom: 110px;
+}
+
+.page.active {
+  display: block;
+}
+
+/* ===== Scan Page ===== */
+.camera-wrapper {
+  height: 65vh;
+  background: linear-gradient(#0f1216, #1a1e25);
+  border-radius: 28px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.scan-frame {
+  width: 75%;
+  height: 30%;
+  border: 3px solid var(--green);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scan-frame p {
+  color: #cfd3d8;
+  font-size: 15px;
+}
+
+/* ===== Buttons ===== */
+.primary-btn {
+  width: 100%;
+  margin-top: 24px;
+  padding: 18px;
+  font-size: 18px;
+  border: none;
+  border-radius: 18px;
+  background: var(--green);
+  color: white;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== Products ===== */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.muted {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.clear-btn {
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.running-total {
+  background: var(--green-soft);
+  padding: 16px;
+  border-radius: 16px;
+  margin: 20px 0;
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  color: var(--green);
+}
+
+.product-card {
+  background: white;
+  padding: 16px;
+  border-radius: 18px;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.price {
+  font-weight: bold;
+  color: var(--green);
+}
+
+/* ===== Badges ===== */
+.badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.meat {
+  background: #fdeaea;
+  color: #d74b4b;
+}
+
+.drinks {
+  background: #e9f2fc;
+  color: #3a78c2;
+}
+
+/* ===== Summary ===== */
+.total-card {
+  background: var(--green);
+  color: white;
+  padding: 26px;
+  border-radius: 26px;
+  text-align: center;
+}
+
+.stats {
+  display: flex;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.stat-card {
+  background: white;
+  padding: 16px;
+  border-radius: 18px;
+  flex: 1;
+}
+
+.stat-card span {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 14px;
+}
+
+.section-title {
+  margin-top: 24px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.category-row {
+  background: white;
+  padding: 14px;
+  border-radius: 16px;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.stat-card.expensive strong,
+.stat-card.expensive i , .stat-card.expensive strong {
+  color: #d74b4b; /* أحمر */
+}
+
+.stat-card.cheap strong,
+.stat-card.cheap i, .stat-card.cheap strong  {
+  color: #3aa76d; /* أخضر */
+}
+
+/* ===== Bottom Nav ===== */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: white;
+  display: flex;
+  justify-content: space-around;
+  padding: 14px 0;
+  border-top: 1px solid #eee;
+}
+
+.nav-btn {
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+}
+
+.nav-btn i {
+  font-size: 18px;
+}
+
+.nav-btn.active {
+  color: var(--green);
+  background: var(--green-soft);
+  padding: 8px 18px;
+  border-radius: 18px;
+}
+
+/* ===== Camera Layering ===== */
+.camera-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.camera-overlay {
+  position: absolute;
+  z-index: 2;
+  color: #cfd3d8;
+  font-size: 15px;
+}
+
+/* ===== Scan Overlay (MATCH IMAGE) ===== */
+.scan-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(1px);
+}
+
+.scan-circle {
+  width: 140px;
+  height: 140px;
+  border: 3px solid var(--green);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: scanRotate 1.4s linear infinite;
+}
+
+.scan-circle i {
+  font-size: 28px;
+  color: var(--green);
+}
+
+@keyframes scanRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ===== Scanner Animation ===== */
+.scanner {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border: 3px solid var(--green);
+  border-radius: 50%;
+  animation: spin 1.2s linear infinite;
+  display: none;
+  z-index: 3;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ===== Scan Result ===== */
+.scan-result {
+  margin-top: 20px;
+}
+
+.hidden {
+  display: none;
+}
+
+.result-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.result-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+
+
+.action-buttons button {
+  flex: 1;
+  height: 52px;
+  border-radius: 14px;
+  font-size: 15px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.add-btn {
+  background: #4caf87;
+  color: #fff;
+}
+
+.rescan-btn {
+  background: #e5e7eb;
+  color: #444;
+}
+
+.add-btn.full {
+  flex: 1 1 100%;
+}
+
+.result-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.result-actions button {
+  flex: 1;
+  height: 54px;
+  border-radius: 16px;
+  font-size: 15px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.add-btn.full {
+  flex: 1 1 100%;
+}
+
+.product-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.product-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.delete-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: #fdeaea;
+  color: #d74b4b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  background: #fbd5d5;
+}
+
+/* ===== IDLE SCAN SCREEN ===== */
+.camera-wrapper {
+  height: 65vh;
+  background: linear-gradient(#0b1320, #0f1b2e);
+  border-radius: 28px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Camera hidden initially */
+#camera {
+  display: none;
+}
+
+/* Frame */
+.scan-frame {
+  width: 75%;
+  height: 38%;
+  border: 3px solid var(--green);
+  border-radius: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: #cfd3d8;
+  position: relative;
+}
+
+.scan-icon {
+  font-size: 28px;
+  color: var(--green);
+}
+
+.scan-line {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 6px;
+  background: var(--green);
+  opacity: 0;
+}
+
+/* ===== SCANNING STATE ===== */
+.camera-wrapper.scanning #camera {
+  display: block;
+}
+
+.camera-wrapper.scanning .scan-frame p {
+  display: none;
+}
+
+.camera-wrapper.scanning .scan-line {
+  opacity: 1;
+  animation: scanLine 1.2s linear infinite;
+}
+
+@keyframes scanLine {
+  from { top: 0; }
+  to { top: 100%; }
+}
+
+/* Button scanning */
+.scan-btn.scanning {
+  background: #2f8f63;
+}
+
+.scan-btn.scanning i {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
